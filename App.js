@@ -1,17 +1,36 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import AddItem from './AddItem';
 import Content from "./Content";
 import Footer from "./Footer";
 import Header from "./Header";
 import SearchItem from './SearchItem';
-//import './App.css'
 
 function App() 
 {
-  const [items, setItems] = useState(JSON.parse(localStorage.getItem('todo_list')));
+  const API_URL = 'http://localhost:3500/items';
+  const [items, setItems] = useState([]);
+  const [newItem, setNewItem] = useState('');
+  const [search, setSearch] = useState('');
 
-  const [newItem, setNewItem] = useState('')
-  const [search, setSearch] = useState('')
+  useEffect(() => {
+    /*const savedItems = JSON.parse(localStorage.getItem('todo_list'));
+    if (savedItems) {
+      setItems(savedItems);
+    }*/
+    const fetchItems = async () => {
+      try {
+        const response = await fetch(API_URL);
+        console.log(response)
+        const listItems = await response.json();
+        console.log(listItems)
+        setItems(listItems);
+      }catch (err) {
+        console.log(err.stack)
+      }
+    }
+
+    (async () => await fetchItems())()
+  }, [])
 
   const addItem = (item) => {
     const id = items.length ? items[items.length - 1].id+1 : 1
@@ -19,7 +38,7 @@ function App()
     const listItems =[...items, addNewItem] //... used to keep the existing items of the array.
     setItems(listItems)
     //below code to store/save changes
-    localStorage.setItem("todo_list", JSON.stringify(listItems))
+    //localStorage.setItem("todo_list", JSON.stringify(listItems))
   }
 
   //function to check and uncheck tasks.
@@ -29,7 +48,7 @@ function App()
     item.id===id ? {...item, checked:!item.checked} : item)
     setItems(listItems)
     //below code to store/save changes
-    localStorage.setItem("todo_list", JSON.stringify(listItems))
+    //localStorage.setItem("todo_list", JSON.stringify(listItems))
   }
 
   //function to delete tasks.
@@ -39,7 +58,7 @@ function App()
    item.id!==id)
     setItems(listItems)
    //below code to store/save changes
-    localStorage.setItem("todo_list", JSON.stringify(listItems))
+   //localStorage.setItem("todo_list", JSON.stringify(listItems))
   }
 
   const handleSubmit = (e) => {
